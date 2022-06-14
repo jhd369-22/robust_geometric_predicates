@@ -1,3 +1,5 @@
+#include <CGAL/Cartesian.h>
+
 namespace ra::geometry {
 
     // A geometry kernel with robust predicates.

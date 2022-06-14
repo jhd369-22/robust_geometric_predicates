@@ -13,6 +13,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # find catch2
 find_package(Catch2 REQUIRED)
 
+find_package(CGAL REQUIRED)
+
 # include the file containing the sanitizer option
 include(Sanitizers.cmake)
 
@@ -22,3 +24,6 @@ include_directories(include)
 # add executable
 add_executable(test_interval app/test_interval.cpp)
 target_link_libraries(test_interval Catch2::Catch2)
+
+add_executable(test_kernel app/test_kernel.cpp)
+target_link_libraries(test_kernel Catch2::Catch2 CGAL::CGAL)

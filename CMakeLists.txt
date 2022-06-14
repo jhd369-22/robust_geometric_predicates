@@ -20,5 +20,5 @@ include(Sanitizers.cmake)
 include_directories(include)
 
 # add executable
-add_executable(test_interval test_interval.cpp)
+add_executable(test_interval app/test_interval.cpp)
 target_link_libraries(test_interval Catch2::Catch2)

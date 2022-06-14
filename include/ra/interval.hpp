@@ -3,6 +3,8 @@
 
 #pragma STDC FENV_ACCESS ON
 
+// TODO: all operation about statistics.
+
 namespace ra::math {
     struct indeterminate_result : public std::runtime_error {
             using std::runtime_error::runtime_error;
@@ -31,21 +33,28 @@ namespace ra::math {
                 if (this != &other) {
                     lower_ = other.lower_;
                     upper_ = other.upper_;
-                    stats_ = other.stats_;
+                    //stats_ = other.stats_;
                 }
 
                 return *this;
             }
 
             // move constructor
-            interval(interval&& other) : lower_(other.lower_), upper_(other.upper_), stats_(other.stats_) {}
+            interval(interval&& other) : lower_(other.lower_), upper_(other.upper_), stats_(other.stats_) {
+                other.lower_ = other.upper_ = real_type(0);
+                //other.stats_ = statistics();
+            }
 
             // move assignment operator
             interval& operator=(interval&& other) {
                 if (this != &other) {
                     lower_ = other.lower_;
                     upper_ = other.upper_;
-                    stats_ = other.stats_;
+                    //stats_ = other.stats_;
+
+                    other.lower_ = real_type(0);
+                    other.upper_ = real_type(0);
+                    //other.stats_ = statistics();
                 }
 
                 return *this;

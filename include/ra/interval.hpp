@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <cassert>
+#include <iostream>
 #include <stdexcept>
 
 #pragma STDC FENV_ACCESS ON
@@ -13,7 +14,7 @@ namespace ra::math {
     class interval;
 
     template <typename T>
-    interval<T> operator+(const interval<T>&, const interval<T>&);
+    bool operator<(const interval<T>&, const interval<T>&);
 
     template <typename T>
     class interval {

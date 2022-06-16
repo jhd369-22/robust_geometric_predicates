@@ -1,9 +1,8 @@
 #include <algorithm>
+#include <cassert>
 #include <stdexcept>
 
 #pragma STDC FENV_ACCESS ON
-
-// TODO: all operation about statistics.
 
 namespace ra::math {
     struct indeterminate_result : public std::runtime_error {
@@ -23,26 +22,24 @@ namespace ra::math {
             };
 
             // default constructor
-            interval(real_type r = real_type(0)) : lower_(r), upper_(r), stats_() {}
+            interval(real_type r = real_type(0)) : lower_(r), upper_(r) {}
 
             // copy constructor
-            interval(const interval& other) : lower_(other.lower_), upper_(other.upper_), stats_(other.stats_) {}
+            interval(const interval& other) : lower_(other.lower_), upper_(other.upper_) {}
 
             // copy assignment operator
             interval& operator=(const interval& other) {
                 if (this != &other) {
                     lower_ = other.lower_;
                     upper_ = other.upper_;
-                    //stats_ = other.stats_;
                 }
 
                 return *this;
             }
 
             // move constructor
-            interval(interval&& other) : lower_(other.lower_), upper_(other.upper_), stats_(other.stats_) {
+            interval(interval&& other) : lower_(other.lower_), upper_(other.upper_) {
                 other.lower_ = other.upper_ = real_type(0);
-                //other.stats_ = statistics();
             }
 
             // move assignment operator
@@ -50,11 +47,9 @@ namespace ra::math {
                 if (this != &other) {
                     lower_ = other.lower_;
                     upper_ = other.upper_;
-                    //stats_ = other.stats_;
 
                     other.lower_ = real_type(0);
                     other.upper_ = real_type(0);
-                    //other.stats_ = statistics();
                 }
 
                 return *this;
@@ -62,15 +57,10 @@ namespace ra::math {
 
             // two-argument constructor
             interval(real_type lower, real_type upper) {
-                if (lower > upper) {
-                    // TODO: If this precondition is violated, the behavior of this constructor is implementation defined.
-                }
+                assert(lower <= upper);  // implementation defined
 
                 lower_ = lower;
                 upper_ = upper;
-
-                stats_.indeterminate_result_count = 0;
-                stats_.arithmetic_op_count = 0;
             }
 
             // destructor
@@ -140,11 +130,10 @@ namespace ra::math {
         private:
             real_type lower_;
             real_type upper_;
-            statistics stats_;
+            inline statistics stats_ = statistics();
     };
 
     // binary operations
-    // TODO: Which interval objects should increase the arithmetic operation count?
     template <typename T>
     interval<T> operator+(const interval<T>& lhs, const interval<T>& rhs) {
         interval<T> result(lhs);

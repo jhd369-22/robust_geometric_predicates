@@ -131,6 +131,9 @@ namespace ra::math {
             real_type lower_;
             real_type upper_;
             inline static statistics stats_ = statistics();
+
+            template <typename T>
+            bool operator<(const interval<T>&, const interval<T>&);
     };
 
     // binary operations
@@ -166,7 +169,7 @@ namespace ra::math {
         } else if(lhs.lower() >= rhs.lower() && lhs.upper() >= rhs.upper()) {
             return false;
         } else {
-            ++interval<T>::stats_.indeterminate_result_count;
+            ++stats_.indeterminate_result_count;
             throw indeterminate_result("Indeterminate result");
         }
     }

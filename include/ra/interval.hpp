@@ -10,6 +10,12 @@ namespace ra::math {
     };
 
     template <typename T>
+    class interval;
+
+    template <typename T>
+    interval<T> operator+(const interval<T>&, const interval<T>&);
+
+    template <typename T>
     class interval {
         public:
             using real_type = T;
@@ -130,10 +136,9 @@ namespace ra::math {
         private:
             real_type lower_;
             real_type upper_;
-            inline static statistics stats_ = statistics();
+            inline static statistics stats_{};
 
-            template <typename T>
-            bool operator<(const interval<T>&, const interval<T>&);
+            friend bool operator< <T>(const interval<T>&, const interval<T>&);
     };
 
     // binary operations
@@ -141,7 +146,7 @@ namespace ra::math {
     interval<T> operator+(const interval<T>& lhs, const interval<T>& rhs) {
         interval<T> result(lhs);
         result += rhs;
-        
+
         return result;
     }
 
@@ -164,12 +169,12 @@ namespace ra::math {
     // less-than comparison
     template <typename T>
     bool operator<(const interval<T>& lhs, const interval<T>& rhs) {
-        if(lhs.lower() < rhs.lower() && lhs.upper() < rhs.upper()) {
+        if (lhs.lower() < rhs.lower() && lhs.upper() < rhs.upper()) {
             return true;
-        } else if(lhs.lower() >= rhs.lower() && lhs.upper() >= rhs.upper()) {
+        } else if (lhs.lower() >= rhs.lower() && lhs.upper() >= rhs.upper()) {
             return false;
         } else {
-            ++stats_.indeterminate_result_count;
+            ++interval<T>::stats_.indeterminate_result_count;
             throw indeterminate_result("Indeterminate result");
         }
     }

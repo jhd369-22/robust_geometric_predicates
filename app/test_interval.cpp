@@ -73,10 +73,10 @@ TEMPLATE_TEST_CASE("operator+=", "[interval]", float, double, long double) {
     CHECK(i.lower() == TestType(6));
     CHECK(i.upper() == TestType(12));
 
-    ra::math::interval<TestType>::statistics stats;
+    typename ra::math::interval<TestType>::statistics stats;
     ra::math::interval<TestType>::get_statistics(stats);
     CHECK(stats.arithmetic_op_count == 1);
-    CHECK(stats.interval_op_count == 0);
+    CHECK(stats.indeterminate_result_count == 0);
 }
 
 TEMPLATE_TEST_CASE("operator-=", "[interval]", float, double, long double) {
@@ -86,10 +86,10 @@ TEMPLATE_TEST_CASE("operator-=", "[interval]", float, double, long double) {
     CHECK(i.lower() == TestType(-3));
     CHECK(i.upper() == TestType(3));
 
-    ra::math::interval<TestType>::statistics stats;
+    typename ra::math::interval<TestType>::statistics stats;
     ra::math::interval<TestType>::get_statistics(stats);
     CHECK(stats.arithmetic_op_count == 2);
-    CHECK(stats.interval_op_count == 0);
+    CHECK(stats.indeterminate_result_count == 0);
 }
 
 TEMPLATE_TEST_CASE("operator*=", "[interval]", float, double, long double) {
@@ -99,10 +99,10 @@ TEMPLATE_TEST_CASE("operator*=", "[interval]", float, double, long double) {
     CHECK(i.lower() == TestType(9));
     CHECK(i.upper() == TestType(36));
 
-    ra::math::interval<TestType>::statistics stats;
+    typename ra::math::interval<TestType>::statistics stats;
     ra::math::interval<TestType>::get_statistics(stats);
     CHECK(stats.arithmetic_op_count == 3);
-    CHECK(stats.interval_op_count == 0);
+    CHECK(stats.indeterminate_result_count == 0);
 }
 
 TEMPLATE_TEST_CASE("is_singleton", "[interval]", float, double, long double) {
@@ -125,6 +125,63 @@ TEMPLATE_TEST_CASE("sign", "[interval]", float, double, long double) {
 }
 
 TEMPLATE_TEST_CASE("clear_statistics && get_statistics", "[interval]", float, double, long double) {
-    //ra::math::interval<TestType> i(TestType(3), TestType(6));
-    //i.clear_statistics();
+    typename ra::math::interval<TestType>::statistics stats;
+    ra::math::interval<TestType>::clear_statistics();
+    ra::math::interval<TestType>::get_statistics(stats);
+    CHECK(stats.arithmetic_op_count == 0);
+    CHECK(stats.indeterminate_result_count == 0);
+}
+
+TEMPLATE_TEST_CASE("operator+", "[interval]", float, double, long double) {
+    ra::math::interval<TestType> i(TestType(3), TestType(6));
+    ra::math::interval<TestType> i2 = i + i;
+    CHECK(i2.lower() == TestType(6));
+    CHECK(i2.upper() == TestType(12));
+
+    typename ra::math::interval<TestType>::statistics stats;
+    ra::math::interval<TestType>::get_statistics(stats);
+    CHECK(stats.arithmetic_op_count == 1);
+    CHECK(stats.indeterminate_result_count == 0);
+}
+
+TEMPLATE_TEST_CASE("operator-", "[interval]", float, double, long double) {
+    ra::math::interval<TestType> i(TestType(3), TestType(6));
+    ra::math::interval<TestType> i2 = i - i;
+    CHECK(i2.lower() == TestType(-3));
+    CHECK(i2.upper() == TestType(3));
+
+    typename ra::math::interval<TestType>::statistics stats;
+    ra::math::interval<TestType>::get_statistics(stats);
+    CHECK(stats.arithmetic_op_count == 2);
+    CHECK(stats.indeterminate_result_count == 0);
+}
+
+TEMPLATE_TEST_CASE("operator*", "[interval]", float, double, long double) {
+    ra::math::interval<TestType> i(TestType(3), TestType(6));
+    ra::math::interval<TestType> i2 = i * i;
+    CHECK(i2.lower() == TestType(9));
+    CHECK(i2.upper() == TestType(36));
+
+    typename ra::math::interval<TestType>::statistics stats;
+    ra::math::interval<TestType>::get_statistics(stats);
+    CHECK(stats.arithmetic_op_count == 3);
+    CHECK(stats.indeterminate_result_count == 0);
+}
+
+TEMPLATE_TEST_CASE("operator<", "[interval]", float, double, long double) {
+    ra::math::interval<TestType> i(TestType(1), TestType(3));
+    ra::math::interval<TestType> i2(TestType(6), TestType(9));
+    CHECK((i < i2) == true);
+    CHECK((i2 < i) == false);
+
+    ra::math::interval<TestType> i3(TestType(1), TestType(3));
+    CHECK((i < i3) == false);
+    CHECK((i3 < i2) == true);
+}
+
+TEMPLATE_TEST_CASE("operator<<", "[interval]", float, double, long double) {
+    ra::math::interval<TestType> i(TestType(6), TestType(9));
+    std::stringstream ss;
+    ss << i;
+    CHECK(ss.str() == "[6,9]");
 }

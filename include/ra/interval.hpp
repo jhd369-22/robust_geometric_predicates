@@ -130,7 +130,7 @@ namespace ra::math {
         private:
             real_type lower_;
             real_type upper_;
-            inline statistics stats_ = statistics();
+            inline static statistics stats_ = statistics();
     };
 
     // binary operations
@@ -166,7 +166,7 @@ namespace ra::math {
         } else if(lhs.lower() >= rhs.lower() && lhs.upper() >= rhs.upper()) {
             return false;
         } else {
-            ++stats_.indeterminate_result_count;
+            ++interval<T>::stats_.indeterminate_result_count;
             throw indeterminate_result("Indeterminate result");
         }
     }

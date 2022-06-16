@@ -72,6 +72,8 @@ TEMPLATE_TEST_CASE("operator+=", "[interval]", float, double, long double) {
     i += i2;
     CHECK(i.lower() == TestType(6));
     CHECK(i.upper() == TestType(12));
+    CHECK(ra::math::interval<TestType>::stats_.arithmetic_op_count == 1);
+    CHECK(ra::math::interval<TestType>::stats_.interval_op_count == 0);
 }
 
 TEMPLATE_TEST_CASE("operator-=", "[interval]", float, double, long double) {
@@ -80,6 +82,8 @@ TEMPLATE_TEST_CASE("operator-=", "[interval]", float, double, long double) {
     i -= i2;
     CHECK(i.lower() == TestType(-3));
     CHECK(i.upper() == TestType(3));
+    CHECK(ra::math::interval<TestType>::stats_.arithmetic_op_count == 2);
+    CHECK(ra::math::interval<TestType>::stats_.interval_op_count == 0);
 }
 
 TEMPLATE_TEST_CASE("operator*=", "[interval]", float, double, long double) {
@@ -88,6 +92,8 @@ TEMPLATE_TEST_CASE("operator*=", "[interval]", float, double, long double) {
     i *= i2;
     CHECK(i.lower() == TestType(9));
     CHECK(i.upper() == TestType(36));
+    CHECK(ra::math::interval<TestType>::stats_.arithmetic_op_count == 3);
+    CHECK(ra::math::interval<TestType>::stats_.interval_op_count == 0);
 }
 
 TEMPLATE_TEST_CASE("is_singleton", "[interval]", float, double, long double) {

@@ -1,11 +1,36 @@
 #include <algorithm>
 #include <cassert>
+#include <cfenv>
 #include <iostream>
 #include <stdexcept>
 
 #pragma STDC FENV_ACCESS ON
 
 namespace ra::math {
+
+    class rounding_mode_saver {
+        public:
+            // Save the rounding mode.
+            rounding_mode_saver() {
+                saved_mode_ = std::fegetround();
+            }
+
+            // Restore the rounding mode to the value that was saved at
+            // the time of construction.
+            ~rounding_mode_saver() {
+                std::fesetround(saved_mode_);
+            }
+
+            // The type is neither movable nor copyable.
+            rounding_mode_saver(rounding_mode_saver&&) = delete;
+            rounding_mode_saver(const rounding_mode_saver&) = delete;
+            rounding_mode_saver& operator=(rounding_mode_saver&&) = delete;
+            rounding_mode_saver& operator=(const rounding_mode_saver&) = delete;
+
+        private:
+            int saved_mode_;
+    };
+
     struct indeterminate_result : public std::runtime_error {
             using std::runtime_error::runtime_error;
     };

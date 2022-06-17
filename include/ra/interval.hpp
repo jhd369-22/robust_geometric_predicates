@@ -189,7 +189,7 @@ namespace ra::math {
         private:
             real_type lower_;
             real_type upper_;
-            inline static statistics stats_ = {0, 0};
+            inline static statistics stats_{0, 0};
 
             friend bool operator< <T>(const interval<T>&, const interval<T>&);
     };

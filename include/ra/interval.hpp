@@ -8,6 +8,14 @@
 
 namespace ra::math {
 
+    // An RAII class called rounding_mode_saver that can be used
+    // to restore the rounding mode. The class is very simple.
+    // It is neither movable nor copyable. It provides a default
+    // constructor and destructor and has a single private data
+    // member. The default constructor saves the current rounding
+    // mode into a private data member. The destructor simply sets
+    // the rounding mode to the value that was saved (in the data member)
+    // at construction time.
     class rounding_mode_saver {
         public:
             // Save the rounding mode.
@@ -35,6 +43,7 @@ namespace ra::math {
             using std::runtime_error::runtime_error;
     };
 
+    // forward declarations so that the friend declarations below are valid
     template <typename T>
     class interval;
 
@@ -100,25 +109,41 @@ namespace ra::math {
 
             // floating-point interval compound assignment operators
             interval& operator+=(const interval& other) {
+                rounding_mode_saver saver;
+
+                std::fesetround(FE_DOWNWARD);
                 lower_ += other.lower_;
+
+                std::fesetround(FE_UPWARD);
                 upper_ += other.upper_;
+
                 ++stats_.arithmetic_op_count;
 
                 return *this;
             }
 
             interval& operator-=(const interval& other) {
+                rounding_mode_saver saver;
+
+                std::fesetround(FE_DOWNWARD);
                 lower_ -= other.upper_;
+
+                std::fesetround(FE_UPWARD);
                 upper_ -= other.lower_;
+
                 ++stats_.arithmetic_op_count;
 
                 return *this;
             }
 
             interval& operator*=(const interval& other) {
+                rounding_mode_saver saver;
+
+                std::fesetround(FE_DOWNWARD);
                 real_type lower = std::min(std::min(lower_ * other.lower_, lower_ * other.upper_),
                                            std::min(upper_ * other.lower_, upper_ * other.upper_));
 
+                std::fesetround(FE_UPWARD);
                 real_type upper = std::max(std::max(lower_ * other.lower_, lower_ * other.upper_),
                                            std::max(upper_ * other.lower_, upper_ * other.upper_));
 

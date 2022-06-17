@@ -1,6 +1,7 @@
 #define CATCH_CONFIG_MAIN
 #include <catch2/catch.hpp>
 #include <ra/interval.hpp>
+#include <sstream>
 
 TEMPLATE_TEST_CASE("default constructor", "[interval]", float, double, long double) {
     ra::math::interval<TestType> i;

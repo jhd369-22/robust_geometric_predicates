@@ -1,7 +1,9 @@
 #include <algorithm>
 #include <cassert>
 #include <cfenv>
+#include <iomanip>
 #include <iostream>
+#include <limits>
 #include <stdexcept>
 
 #pragma STDC FENV_ACCESS ON
@@ -233,7 +235,7 @@ namespace ra::math {
     // stream inserter
     template <typename T>
     std::ostream& operator<<(std::ostream& os, const interval<T>& intvl) {
-        os << "[" << intvl.lower() << "," << intvl.upper() << "]";
+        os << "[" << std::setprecision(std::numeric_limits<T>::max_digits10) << intvl.lower() << "," << intvl.upper() << "]";
         return os;
     }
 

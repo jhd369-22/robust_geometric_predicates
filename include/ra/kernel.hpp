@@ -1,4 +1,9 @@
 #include <CGAL/Cartesian.h>
+#include <CGAL/MP_Float.h>
+#include <CGAL/Point_2.h>
+#include <CGAL/Vector_2.h>
+
+#include <cstddef>
 
 namespace ra::geometry {
 
@@ -50,29 +55,31 @@ namespace ra::geometry {
 
             // Since a kernel object is stateless, construction and
             // destruction are trivial.
-            Kernel();
-            ˜Kernel();
+            Kernel() = default;
+            ~Kernel() = default;
 
             // The kernel type is both movable and copyable.
             // Since a kernel object is stateless, a copy/move operation
             // is trivial.
-            Kernel(const Kernel&);
-            Kernel& operator=(const Kernel&);
-            Kernel(Kernel&&);
-            Kernel& operator=(Kernel&&);
+            Kernel(const Kernel&) = default;
+            Kernel& operator=(const Kernel&) = default;
+            Kernel(Kernel&&) = default;
+            Kernel& operator=(Kernel&&) = default;
 
             // Determines how the point c is positioned relative to the
             // directed line through the points a and b (in that order).
             // Precondition: The points a and b have distinct values.
-            Orientation orientation(const Point& a, const Point& b,
-                                    const Point& c);
+            Orientation orientation(const Point& a, const Point& b, const Point& c) {
+                
+                return orientation_exact(a, b, c);
+            }
 
             // Determines how the point d is positioned relative to the
             // oriented circle passing through the points a, b, and c
             // (in that order).
             // Precondition: The points a, b, and c are not collinear.
-            Oriented_side side_of_oriented_circle(const Point& a,
-                                                  const Point& b, const Point& c, const Point& d);
+            Oriented_side side_of_oriented_circle(const Point& a, const Point& b,
+                                                  const Point& c, const Point& d);
 
             // Determines if, compared to the orientation of line
             // segment cd, the orientation of the line segment ab is
@@ -109,14 +116,16 @@ namespace ra::geometry {
             // Precondition: The points a, b, c, and d have distinct values;
             // the vectors u and v are not zero vectors; the vectors u and
             // v are neither parallel nor orthogonal.
-            bool is_locally_pd_delaunay_edge(const Point& a,
-                                             const Point& b, const Point& c, const Point& d,
-                                             const Vector& u, const Vector& v);
+            bool is_locally_pd_delaunay_edge(const Point& a, const Point& b, const Point& c,
+                                             const Point& d, const Vector& u, const Vector& v);
 
             // Clear (i.e., set to zero) all kernel statistics.
             static void clear_statistics();
 
             // Get the current values of the kernel statistics.
             static void get_statistics(Statistics& statistics);
+
+        private:
+            inline static Statistics stats_{};
     };
 }  // namespace ra::geometry

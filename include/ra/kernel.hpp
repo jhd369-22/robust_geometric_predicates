@@ -71,18 +71,15 @@ namespace ra::geometry {
             // directed line through the points a and b (in that order).
             // Precondition: The points a and b have distinct values.
             Orientation orientation(const Point& a, const Point& b, const Point& c) {
-                ra::math::interval<Real> ax(a.x());
-                ra::math::interval<Real> ay(a.y());
+                ra::math::interval<Real> ax(a.x()), ay(a.y());
 
-                ra::math::interval<Real> bx(b.x());
-                ra::math::interval<Real> by(b.y());
+                ra::math::interval<Real> bx(b.x()), by(b.y());
 
-                ra::math::interval<Real> cx(c.x());
-                ra::math::interval<Real> cy(c.y());
+                ra::math::interval<Real> cx(c.x()), cy(c.y());
 
                 ra::math::interval<Real> det = (ax - cx) * (by - cy) - (bx - cx) * (ay - cy);
 
-                ++statistics_.orientation_total_count;
+                ++stats_.orientation_total_count;
 
                 try {
                     switch (det.sign()) {
@@ -95,7 +92,7 @@ namespace ra::geometry {
                     }
                 } catch (ra::math::interval::indeterminate_result&) {
                     // TODO: Use the exact arithmetic
-                    ++statistics_.orientation_exact_count;
+                    ++stats_.orientation_exact_count;
                 }
             }
 
@@ -105,27 +102,23 @@ namespace ra::geometry {
             // Precondition: The points a, b, and c are not collinear.
             Oriented_side side_of_oriented_circle(const Point& a, const Point& b,
                                                   const Point& c, const Point& d) {
-                ra::math::interval<Real> ax(a.x());
-                ra::math::interval<Real> ay(a.y());
+                ra::math::interval<Real> ax(a.x()), ay(a.y());
                 ra::math::interval<Real> az(ax * ax + ay * ay);
 
-                ra::math::interval<Real> bx(b.x());
-                ra::math::interval<Real> by(b.y());
+                ra::math::interval<Real> bx(b.x()), by(b.y());
                 ra::math::interval<Real> bz(bx * bx + by * by);
 
-                ra::math::interval<Real> cx(c.x());
-                ra::math::interval<Real> cy(c.y());
+                ra::math::interval<Real> cx(c.x()), cy(c.y());
                 ra::math::interval<Real> cz(cx * cx + cy * cy);
 
-                ra::math::interval<Real> dx(d.x());
-                ra::math::interval<Real> dy(d.y());
+                ra::math::interval<Real> dx(d.x()), dy(d.y());
                 ra::math::interval<Real> dz(dx * dx + dy * dy);
 
                 ra::math::interval<Real> det = ax * (by * cz - bz * cy) -
                                                bx * (ay * cz - az * cy) +
                                                cx * (ay * bz - az * by);
 
-                ++statistics_.side_of_oriented_circle_total_count;
+                ++stats_.side_of_oriented_circle_total_count;
 
                 try {
                     switch (det.sign()) {
@@ -138,7 +131,7 @@ namespace ra::geometry {
                     }
                 } catch (ra::math::interval::indeterminate_result&) {
                     // TODO: Use the exact arithmetic
-                    ++statistics_.side_of_oriented_circle_exact_count;
+                    ++stats_.side_of_oriented_circle_exact_count;
                 }
             }
 
@@ -154,14 +147,57 @@ namespace ra::geometry {
             // points c and d have distinct values; the vector v is not
             // the zero vector.
             int preferred_direction(const Point& a, const Point& b,
-                                    const Point& c, const Point& d, const Vector& v);
+                                    const Point& c, const Point& d, const Vector& v) {
+                ra::math::interval<Real> ax(a.x()), ay(a.y());
+
+                ra::math::interval<Real> bx(b.x()), by(b.y());
+
+                ra::math::interval<Real> cx(c.x()), cy(c.y());
+
+                ra::math::interval<Real> dx(d.x()), dy(d.y());
+
+                ra::math::interval<Real> vx(v.x()), vy(v.y());
+
+                ra::math::interval<Real> prefDir = ((dx - cx) * (dx - cx) + (dy - cy) * (dy - cy)) *
+                                                       (((bx - ax) * vx + (by - ay) * vy) * ((bx - ax) * vx + (by - ay) * vy)) -
+                                                   ((bx - ax) * (bx - ax) + (by - ay) * (by - ay)) *
+                                                       (((dx - cx) * vx + (dy - cy) * vy) * ((dx - cx) * vx + (dy - cy) * vy));
+
+                ++stats_.preferred_direction_total_count;
+
+                try {
+                    switch (prefDir.sign()) {
+                        case -1:
+                            return -1;
+                        case 0:
+                            return 0;
+                        case 1:
+                            return 1;
+                    }
+                } catch (ra::math::interval::indeterminate_result&) {
+                    // TODO: Use the exact arithmetic
+                    ++stats_.preferred_direction_exact_count;
+                }
+            }
 
             // Tests if the quadrilateral with vertices a, b, c, and d
             // specified in CCW order is strictly convex.
             // Precondition: The vertices a, b, c, and d have distinct
             // values and are specified in CCW order.
             bool is_strictly_convex_quad(const Point& a, const Point& b,
-                                         const Point& c, const Point& d);
+                                         const Point& c, const Point& d) {
+                orientation o1 = orientation(a, b, c);
+                orientation o2 = orientation(b, c, d);
+                orientation o3 = orientation(c, d, a);
+                orientation o4 = orientation(d, a, b);
+
+                if (o1 == Orientation::left_turn && o2 == Orientation::left_turn &&
+                    o3 == Orientation::left_turn && o4 == Orientation::left_turn) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
 
             // Tests if the flippable edge, with endpoints a and c and
             // two incident faces abc and acd, is locally Delaunay.

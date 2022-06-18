@@ -4,6 +4,7 @@
 #include <CGAL/Vector_2.h>
 
 #include <cstddef>
+#include <ra/interval.hpp>
 
 namespace ra::geometry {
 
@@ -70,8 +71,32 @@ namespace ra::geometry {
             // directed line through the points a and b (in that order).
             // Precondition: The points a and b have distinct values.
             Orientation orientation(const Point& a, const Point& b, const Point& c) {
-                
-                return orientation_exact(a, b, c);
+                ra::math::interval<Real> ax(a.x());
+                ra::math::interval<Real> ay(a.y());
+
+                ra::math::interval<Real> bx(b.x());
+                ra::math::interval<Real> by(b.y());
+
+                ra::math::interval<Real> cx(c.x());
+                ra::math::interval<Real> cy(c.y());
+
+                ra::math::interval<Real> det = (ax - cx) * (by - cy) - (bx - cx) * (ay - cy);
+
+                ++statistics_.orientation_total_count;
+
+                try {
+                    switch (det.sign()) {
+                        case -1:
+                            return Orientation::right_turn;
+                        case 0:
+                            return Orientation::collinear;
+                        case 1:
+                            return Orientation::left_turn;
+                    }
+                } catch (ra::math::interval::indeterminate_result&) {
+                    // TODO: Use the exact arithmetic
+                    ++statistics_.orientation_exact_count;
+                }
             }
 
             // Determines how the point d is positioned relative to the
@@ -79,7 +104,43 @@ namespace ra::geometry {
             // (in that order).
             // Precondition: The points a, b, and c are not collinear.
             Oriented_side side_of_oriented_circle(const Point& a, const Point& b,
-                                                  const Point& c, const Point& d);
+                                                  const Point& c, const Point& d) {
+                ra::math::interval<Real> ax(a.x());
+                ra::math::interval<Real> ay(a.y());
+                ra::math::interval<Real> az(ax * ax + ay * ay);
+
+                ra::math::interval<Real> bx(b.x());
+                ra::math::interval<Real> by(b.y());
+                ra::math::interval<Real> bz(bx * bx + by * by);
+
+                ra::math::interval<Real> cx(c.x());
+                ra::math::interval<Real> cy(c.y());
+                ra::math::interval<Real> cz(cx * cx + cy * cy);
+
+                ra::math::interval<Real> dx(d.x());
+                ra::math::interval<Real> dy(d.y());
+                ra::math::interval<Real> dz(dx * dx + dy * dy);
+
+                ra::math::interval<Real> det = ax * (by * cz - bz * cy) -
+                                               bx * (ay * cz - az * cy) +
+                                               cx * (ay * bz - az * by);
+
+                ++statistics_.side_of_oriented_circle_total_count;
+
+                try {
+                    switch (det.sign()) {
+                        case -1:
+                            return Oriented_side::on_negative_side;
+                        case 0:
+                            return Oriented_side::on_boundary;
+                        case 1:
+                            return Oriented_side::on_positive_side;
+                    }
+                } catch (ra::math::interval::indeterminate_result&) {
+                    // TODO: Use the exact arithmetic
+                    ++statistics_.side_of_oriented_circle_exact_count;
+                }
+            }
 
             // Determines if, compared to the orientation of line
             // segment cd, the orientation of the line segment ab is
@@ -120,10 +181,14 @@ namespace ra::geometry {
                                              const Point& d, const Vector& u, const Vector& v);
 
             // Clear (i.e., set to zero) all kernel statistics.
-            static void clear_statistics();
+            static void clear_statistics() {
+                stats_ = Statistics{};
+            }
 
             // Get the current values of the kernel statistics.
-            static void get_statistics(Statistics& statistics);
+            static void get_statistics(Statistics& statistics) {
+                statistics = stats_;
+            }
 
         private:
             inline static Statistics stats_{};

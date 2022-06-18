@@ -164,6 +164,13 @@ namespace ra::math {
 
             bool is_singleton() const { return lower_ == upper_; }
 
+            // This function returns the sign of the interval.
+            // If all elements in the interval are strictly negative,
+            // -1 is returned. If all elements in the interval are
+            // strictly positive, 1 is returned. If the interval
+            // consists of only the element zero, 0 is returned.
+            // Otherwise, the result is indeterminate and an
+            // indeterminate_result exception should be thrown.
             int sign() const {
                 if (lower_ < 0 && upper_ < 0) {
                     return -1;
@@ -179,8 +186,7 @@ namespace ra::math {
 
             // clear statistics
             static void clear_statistics() {
-                stats_.indeterminate_result_count = 0;
-                stats_.arithmetic_op_count = 0;
+                stats_ = statistics{};
             }
 
             // get statistics

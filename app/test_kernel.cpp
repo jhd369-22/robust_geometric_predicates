@@ -276,9 +276,9 @@ TEMPLATE_TEST_CASE("is_locally_pd_delaunay_edge", "[Kernel]", float, double) {
         typename Kernel::Statistics stats;
         Kernel::get_statistics(stats);
 
-        CHECK(stats.preferred_direction_total_count == std::size_t(6));
+        CHECK(stats.preferred_direction_total_count == std::size_t(12));
         CHECK(stats.preferred_direction_exact_count == std::size_t(0));
-        CHECK(stats.side_of_oriented_circle_total_count == std::size_t(3));
+        CHECK(stats.side_of_oriented_circle_total_count == std::size_t(6));
         CHECK(stats.side_of_oriented_circle_exact_count == std::size_t(0));
     }
 }

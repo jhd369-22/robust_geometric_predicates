@@ -130,9 +130,9 @@ namespace ra::geometry {
 
                 // The side of the oriented circle is determined by the
                 // sign of the determinant of the following matrix:
-                ra::math::interval<Real> inCircle = ax * (by * cz - bz * cy) -
-                                                    bx * (ay * cz - az * cy) +
-                                                    cx * (ay * bz - az * by);
+                ra::math::interval<Real> inCircle = (ax - dx) * (((by - dy) * (cz - dz)) - ((cy - dy) * (bz - dz))) -
+                                                    (bx - dx) * (((ay - dy) * (cz - dz)) - ((az - dz) * (cy - dy))) +
+                                                    (cx - dx) * (((ay - dy) * (bz - dz)) - ((by - dy) * (az - dz)));
 
                 ++stats_.side_of_oriented_circle_total_count;
 
@@ -161,9 +161,12 @@ namespace ra::geometry {
                     CGAL::MP_Float exact_dx(d.x()), exact_dy(d.y());
                     CGAL::MP_Float exact_dz(exact_dx * exact_dx + exact_dy * exact_dy);
 
-                    CGAL::MP_Float exact_inCircle = exact_ax * (exact_by * exact_cz - exact_bz * exact_cy) -
-                                                    exact_bx * (exact_ay * exact_cz - exact_az * exact_cy) +
-                                                    exact_cx * (exact_ay * exact_bz - exact_az * exact_by);
+                    CGAL::MP_Float exact_inCircle = (exact_ax - exact_dx) * (((exact_by - exact_dy) * (exact_cz - exact_dz)) -
+                                                                             ((exact_cy - exact_dy) * (exact_bz - exact_dz))) -
+                                                    (exact_bx - exact_dx) * (((exact_ay - exact_dy) * (exact_cz - exact_dz)) -
+                                                                             ((exact_az - exact_dz) * (exact_cy - exact_dy))) +
+                                                    (exact_cx - exact_dx) * (((exact_ay - exact_dy) * (exact_bz - exact_dz)) -
+                                                                             ((exact_by - exact_dy) * (exact_az - exact_dz)));
 
                     if (exact_inCircle < 0) {
                         return Oriented_side::on_negative_side;

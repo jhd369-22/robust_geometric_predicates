@@ -77,12 +77,14 @@ namespace ra::geometry {
 
                 ra::math::interval<Real> cx(c.x()), cy(c.y());
 
-                ra::math::interval<Real> det = (ax - cx) * (by - cy) - (bx - cx) * (ay - cy);
+                // The orientation test is determined by the
+                // sign of the determinant of the following matrix:
+                ra::math::interval<Real> orient2d = (ax - cx) * (by - cy) - (bx - cx) * (ay - cy);
 
                 ++stats_.orientation_total_count;
 
                 try {
-                    switch (det.sign()) {
+                    switch (orient2d.sign()) {
                         case -1:
                             return Orientation::right_turn;
                         case 0:
@@ -114,14 +116,16 @@ namespace ra::geometry {
                 ra::math::interval<Real> dx(d.x()), dy(d.y());
                 ra::math::interval<Real> dz(dx * dx + dy * dy);
 
-                ra::math::interval<Real> det = ax * (by * cz - bz * cy) -
-                                               bx * (ay * cz - az * cy) +
-                                               cx * (ay * bz - az * by);
+                // The side of the oriented circle is determined by the
+                // sign of the determinant of the following matrix:
+                ra::math::interval<Real> inCircle = ax * (by * cz - bz * cy) -
+                                                    bx * (ay * cz - az * cy) +
+                                                    cx * (ay * bz - az * by);
 
                 ++stats_.side_of_oriented_circle_total_count;
 
                 try {
-                    switch (det.sign()) {
+                    switch (inCircle.sign()) {
                         case -1:
                             return Oriented_side::on_negative_side;
                         case 0:
@@ -186,10 +190,10 @@ namespace ra::geometry {
             // values and are specified in CCW order.
             bool is_strictly_convex_quad(const Point& a, const Point& b,
                                          const Point& c, const Point& d) {
-                orientation o1 = orientation(a, b, c);
-                orientation o2 = orientation(b, c, d);
-                orientation o3 = orientation(c, d, a);
-                orientation o4 = orientation(d, a, b);
+                Orientation o1 = orientation(a, b, c);
+                Orientation o2 = orientation(b, c, d);
+                Orientation o3 = orientation(c, d, a);
+                Orientation o4 = orientation(d, a, b);
 
                 if (o1 == Orientation::left_turn && o2 == Orientation::left_turn &&
                     o3 == Orientation::left_turn && o4 == Orientation::left_turn) {
@@ -204,7 +208,15 @@ namespace ra::geometry {
             // Precondition: The points a, b, c, and d have distinct
             // values; the quadrilateral abcd must be strictly convex.
             bool is_locally_delaunay_edge(const Point& a, const Point& b,
-                                          const Point& c, const Point& d);
+                                          const Point& c, const Point& d) {
+                Oriented_side o1 = side_of_oriented_circle(a, b, c, d);
+
+                if (o1 == Oriented_side::on_negative_side || o1 == Oriented_side::on_boundary) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
 
             // Tests if the flippable edge, with endpoints a and c and
             // two incident faces abc and acd, has the preferred-directions
@@ -214,7 +226,22 @@ namespace ra::geometry {
             // the vectors u and v are not zero vectors; the vectors u and
             // v are neither parallel nor orthogonal.
             bool is_locally_pd_delaunay_edge(const Point& a, const Point& b, const Point& c,
-                                             const Point& d, const Vector& u, const Vector& v);
+                                             const Point& d, const Vector& u, const Vector& v) {
+                int pd1 = preferred_direction(a, b, c, d, u);
+                int pd2 = preferred_direction(a, b, c, d, v);
+                bool alpha = (pd1 == 1 || (pd1 == 0 && pd2 == 1));
+
+                Oriented_side o1 = side_of_oriented_circle(a, b, c, d);
+
+                switch (o1) {
+                    case Oriented_side::on_negative_side:
+                        return true;
+                    case Oriented_side::on_positive_side:
+                        return false;
+                    case Oriented_side::on_boundary:
+                        return alpha;
+                }
+            }
 
             // Clear (i.e., set to zero) all kernel statistics.
             static void clear_statistics() {

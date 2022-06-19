@@ -72,9 +72,7 @@ namespace ra::geometry {
             // Precondition: The points a and b have distinct values.
             Orientation orientation(const Point& a, const Point& b, const Point& c) {
                 ra::math::interval<Real> ax(a.x()), ay(a.y());
-
                 ra::math::interval<Real> bx(b.x()), by(b.y());
-
                 ra::math::interval<Real> cx(c.x()), cy(c.y());
 
                 // The orientation test is determined by the
@@ -93,8 +91,22 @@ namespace ra::geometry {
                             return Orientation::left_turn;
                     }
                 } catch (ra::math::interval::indeterminate_result&) {
-                    // TODO: Use the exact arithmetic
                     ++stats_.orientation_exact_count;
+
+                    // Use the exact arithmetic
+                    CGAL::MP_Float exact_ax(a.x()), exact_ay(a.y());
+                    CGAL::MP_Float exact_bx(b.x()), exact_by(b.y());
+                    CGAL::MP_Float exact_cx(c.x()), exact_cy(c.y());
+
+                    CGAL::MP_Float exact_orient2d = (exact_ax - exact_cx) * (exact_by - exact_cy) - (exact_bx - exact_cx) * (exact_ay - exact_cy);
+
+                    if (exact_orient2d < 0) {
+                        return Orientation::right_turn;
+                    } else if (exact_orient2d == 0) {
+                        return Orientation::collinear;
+                    } else {
+                        return Orientation::left_turn;
+                    }
                 }
             }
 
@@ -134,8 +146,32 @@ namespace ra::geometry {
                             return Oriented_side::on_positive_side;
                     }
                 } catch (ra::math::interval::indeterminate_result&) {
-                    // TODO: Use the exact arithmetic
                     ++stats_.side_of_oriented_circle_exact_count;
+
+                    // Use the exact arithmetic
+                    CGAL::MP_Float exact_ax(a.x()), exact_ay(a.y());
+                    CGAL::MP_Float exact_az(exact_ax * exact_ax + exact_ay * exact_ay);
+
+                    CGAL::MP_Float exact_bx(b.x()), exact_by(b.y());
+                    CGAL::MP_Float exact_bz(exact_bx * exact_bx + exact_by * exact_by);
+
+                    CGAL::MP_Float exact_cx(c.x()), exact_cy(c.y());
+                    CGAL::MP_Float exact_cz(exact_cx * exact_cx + exact_cy * exact_cy);
+
+                    CGAL::MP_Float exact_dx(d.x()), exact_dy(d.y());
+                    CGAL::MP_Float exact_dz(exact_dx * exact_dx + exact_dy * exact_dy);
+
+                    CGAL::MP_Float exact_inCircle = exact_ax * (exact_by * exact_cz - exact_bz * exact_cy) -
+                                                    exact_bx * (exact_ay * exact_cz - exact_az * exact_cy) +
+                                                    exact_cx * (exact_ay * exact_bz - exact_az * exact_by);
+
+                    if (exact_inCircle < 0) {
+                        return Oriented_side::on_negative_side;
+                    } else if (exact_inCircle == 0) {
+                        return Oriented_side::on_boundary;
+                    } else {
+                        return Oriented_side::on_positive_side;
+                    }
                 }
             }
 
@@ -179,8 +215,31 @@ namespace ra::geometry {
                             return 1;
                     }
                 } catch (ra::math::interval::indeterminate_result&) {
-                    // TODO: Use the exact arithmetic
                     ++stats_.preferred_direction_exact_count;
+
+                    // Use the exact arithmetic
+                    CGAL::MP_Float exact_ax(a.x()), exact_ay(a.y());
+
+                    CGAL::MP_Float exact_bx(b.x()), exact_by(b.y());
+
+                    CGAL::MP_Float exact_cx(c.x()), exact_cy(c.y());
+
+                    CGAL::MP_Float exact_dx(d.x()), exact_dy(d.y());
+
+                    CGAL::MP_Float exact_vx(v.x()), exact_vy(v.y());
+
+                    CGAL::MP_Float exact_prefDir = ((exact_dx - exact_cx) * (exact_dx - exact_cx) + (exact_dy - exact_cy) * (exact_dy - exact_cy)) *
+                                                       (((exact_bx - exact_ax) * exact_vx + (exact_by - exact_ay) * exact_vy) * ((exact_bx - exact_ax) * exact_vx + (exact_by - exact_ay) * exact_vy)) -
+                                                   ((exact_bx - exact_ax) * (exact_bx - exact_ax) + (exact_by - exact_ay) * (exact_by - exact_ay)) *
+                                                       (((exact_dx - exact_cx) * exact_vx + (exact_dy - exact_cy) * exact_vy) * ((exact_dx - exact_cx) * exact_vx + (exact_dy - exact_cy) * exact_vy));
+
+                    if (exact_prefDir < 0) {
+                        return -1;
+                    } else if (exact_prefDir == 0) {
+                        return 0;
+                    } else {
+                        return 1;
+                    }
                 }
             }
 

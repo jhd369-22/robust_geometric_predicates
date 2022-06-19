@@ -67,7 +67,7 @@ TEMPLATE_TEST_CASE("orientation", "[Kernel]", float, double) {
 //         CHECK(stats.orientation_total_count == std::size_t(2));
 //         CHECK(stats.orientation_exact_count == std::size_t(2));
 //     }
-// }
+}
 
 TEMPLATE_TEST_CASE("side_of_oriented_circle", "[Kernel]", float, double) {
     namespace rg = ra::geometry;

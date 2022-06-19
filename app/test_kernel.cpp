@@ -259,19 +259,19 @@ TEMPLATE_TEST_CASE("is_locally_pd_delaunay_edge", "[Kernel]", float, double) {
         typename Kernel::Point b(TestType(2), TestType(2));
         typename Kernel::Point c(TestType(2), TestType(0));
         typename Kernel::Point d(TestType(0), TestType(2));
+        typename Kernel::Point e(TestType(1), TestType(1));
+        typename Kernel::Point f(TestType(3), TestType(3));
         typename Kernel::Vector u(TestType(2), TestType(1));
         typename Kernel::Vector v(TestType(1), TestType(0));
         typename Kernel::Vector w(TestType(-1), TestType(2));
-        typename Kernel::Vector x(TestType(1), TestType(1));
-        typename Kernel::Vector y(TestType(3), TestType(3));
 
         CHECK(k.is_locally_pd_delaunay_edge(a, b, c, d, u, v) == true);
         CHECK(k.is_locally_pd_delaunay_edge(a, b, c, d, v, u) == true);
         CHECK(k.is_locally_pd_delaunay_edge(a, b, c, d, w, v) == false);
 
-        CHECK(k.is_locally_pd_delaunay_edge(a, c, d, x, u, v) == false);
-        CHECK(k.is_locally_pd_delaunay_edge(a, c, d, x, v, u) == false);
-        CHECK(k.is_locally_pd_delaunay_edge(a, c, d, y, w, v) == true);
+        CHECK(k.is_locally_pd_delaunay_edge(a, c, d, e, u, v) == false);
+        CHECK(k.is_locally_pd_delaunay_edge(a, c, d, e, v, u) == false);
+        CHECK(k.is_locally_pd_delaunay_edge(a, c, d, f, w, v) == true);
 
         typename Kernel::Statistics stats;
         Kernel::get_statistics(stats);

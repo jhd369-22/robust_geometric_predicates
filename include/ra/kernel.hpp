@@ -90,7 +90,7 @@ namespace ra::geometry {
                         case 1:
                             return Orientation::left_turn;
                     }
-                } catch (ra::math::interval::indeterminate_result&) {
+                } catch (std::runtime_error& e) {
                     ++stats_.orientation_exact_count;
 
                     // Use the exact arithmetic
@@ -145,7 +145,7 @@ namespace ra::geometry {
                         case 1:
                             return Oriented_side::on_positive_side;
                     }
-                } catch (ra::math::interval::indeterminate_result&) {
+                } catch (std::runtime_error& e) {
                     ++stats_.side_of_oriented_circle_exact_count;
 
                     // Use the exact arithmetic
@@ -214,7 +214,7 @@ namespace ra::geometry {
                         case 1:
                             return 1;
                     }
-                } catch (ra::math::interval::indeterminate_result&) {
+                } catch (std::runtime_error& e) {
                     ++stats_.preferred_direction_exact_count;
 
                     // Use the exact arithmetic

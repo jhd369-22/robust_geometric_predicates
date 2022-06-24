@@ -289,8 +289,8 @@ namespace ra::geometry {
             // v are neither parallel nor orthogonal.
             bool is_locally_pd_delaunay_edge(const Point& a, const Point& b, const Point& c,
                                              const Point& d, const Vector& u, const Vector& v) {
-                int pd1 = preferred_direction(a, b, c, d, u);
-                int pd2 = preferred_direction(a, b, c, d, v);
+                int pd1 = preferred_direction(a, c, b, d, u);
+                int pd2 = preferred_direction(a, c, b, d, v);
                 bool alpha = (pd1 == 1 || (pd1 == 0 && pd2 == 1));
 
                 Oriented_side o1 = side_of_oriented_circle(a, b, c, d);

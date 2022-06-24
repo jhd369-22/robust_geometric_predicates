@@ -128,11 +128,13 @@ namespace ra::math {
                 rounding_mode_saver saver;
 
                 std::fesetround(FE_DOWNWARD);
-                lower_ -= other.upper_;
+                real_type lower = lower_;
+                lower -= other.upper_;
 
                 std::fesetround(FE_UPWARD);
                 upper_ -= other.lower_;
 
+                lower_ = lower;
                 ++stats_.arithmetic_op_count;
 
                 return *this;
@@ -226,6 +228,7 @@ namespace ra::math {
     }
 
     // less-than comparison
+    // TODO: fix bug
     template <typename T>
     bool operator<(const interval<T>& lhs, const interval<T>& rhs) {
         if (lhs.lower() < rhs.lower() && lhs.upper() < rhs.upper()) {
